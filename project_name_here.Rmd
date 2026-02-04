@@ -1,0 +1,16 @@
+---
+title: 'Project Name Here'
+author: '[Frank Jung](https://www.linkedin.com/in/frankjung/)'
+date: '`r format(Sys.time(), format="%d %b %Y")`'
+---
+
+```{r setup, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+![](images/banner.png)
+
+## Project
+
+This is a template R Markdown project. Replace this text with your project content.
