@@ -12,13 +12,22 @@ require(rmarkdown)
 # Check if pagedown is available for CSS-based PDFs
 pagedown_available <- requireNamespace("pagedown", quietly = TRUE)
 
+ensure_output_dir <- function(path) {
+  out_dir <- dirname(path)
+  if (!dir.exists(out_dir) && out_dir != ".") {
+    dir.create(out_dir, recursive = TRUE)
+  }
+}
+
 # require parameters: source file and output file
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) == 1) {
   # Legacy mode: infer source from output
-  if (endsWith(args[1], "html")) {
+  output_file <- args[1]
+  ensure_output_dir(output_file)
+  if (endsWith(output_file, "html")) {
     render(
-      gsub("html$", "Rmd", args[1]),
+      gsub("html$", "Rmd", output_file),
       html_document(
         css = "files/article.css",
         theme = NULL,
@@ -26,13 +35,16 @@ if (length(args) == 1) {
         self_contained = TRUE
       )
     )
-  } else if (endsWith(args[1], "pdf")) {
-    render(gsub("pdf$", "Rmd", args[1]), pdf_document())
+  } else if (endsWith(output_file, "pdf")) {
+    render(gsub("pdf$", "Rmd", output_file), pdf_document())
+  } else {
+    stop("ERROR: output must end with .html or .pdf", call. = TRUE)
   }
 } else if (length(args) == 2) {
   # New mode: source file and output file specified
   source_file <- args[1]
   output_file <- args[2]
+  ensure_output_dir(output_file)
   if (endsWith(output_file, "html")) {
     render(source_file,
       html_document(
@@ -50,6 +62,8 @@ if (length(args) == 1) {
       toc_depth = 3,
       includes = includes(in_header = "files/preamble.tex")
     ), output_file = output_file)
+  } else {
+    stop("ERROR: output must end with .html or .pdf", call. = TRUE)
   }
 } else {
   stop("ERROR: wrong number of arguments (expected 1 or 2)", call. = TRUE)

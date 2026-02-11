@@ -93,6 +93,11 @@ docker build -t rmarkdown .
 
 # Build an article using the image
 docker run --rm -v "$PWD":/workspace rmarkdown -B base-rate
+
+# Build using GHCR image:
+docker run --rm -v "$PWD":/workspace docker://ghcr.io/frankhjung/gnur:4.5.2 -B base-rate
+
+
 ```
 
 ## Publishing via GitHub Actions

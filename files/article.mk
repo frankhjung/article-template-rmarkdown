@@ -1,22 +1,32 @@
 #!/usr/bin/make
 
-.SUFFIXES:
-.SUFFIXES: .Rmd .html .pdf
+SHELL := /bin/bash
+R ?= /usr/bin/R
+PROJECT := $(notdir $(CURDIR))
+HTML_OUT := public/article.html
+PDF_OUT := public/$(PROJECT).pdf
 
-PROJECT:= $(notdir $(CURDIR))
-R	= /usr/bin/R
+.PHONY: default article.html pdf clean
 
-default: $(PROJECT).html $(PROJECT).pdf
+.DEFAULT_GOAL := article.html
 
-.Rmd.html:
+# HTML target
+
+default: article.html
+
+article.html: article.Rmd make.R files/article.css
 	@mkdir -p public
-	@$(R) --quiet --slave --vanilla --file=make.R --args $< $@
-	@mv $@ public/article.html
+	@$(R) --quiet --slave --vanilla --file=make.R --args article.Rmd $(HTML_OUT)
 
-.Rmd.pdf:
+# PDF target
+
+pdf: $(PDF_OUT)
+
+$(PDF_OUT): article.Rmd make.R files/preamble.tex
 	@mkdir -p public
-	@$(R) --quiet --slave --vanilla --file=make.R --args $< $@
-	@mv $@ public/
+	@$(R) --quiet --slave --vanilla --file=make.R --args article.Rmd $(PDF_OUT)
+
+$(PROJECT).pdf: $(PDF_OUT)
 
 .PHONY: clean
 clean:

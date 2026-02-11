@@ -2,7 +2,7 @@
 title: "Base Rate: COVID-19 Hospitalisations"
 author: "[Frank Jung](https://www.linkedin.com/in/frankjung/)"
 date: "`r format(Sys.time(), format='%d %b %Y')`"
-labels: "[statistics, base rate, COVID-19, vaccination]"
+labels: "[statistics, base rate, covid-19, vaccination]"
 ---
 
 ```{r setup, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 require(ggplot2)
 ```
 
-![© Frank H Jung 2026](images/banner.jpg)
+![© Frank H Jung 2026](images/banner.png)
 
 ## COVID-19 Hospitalisations
 

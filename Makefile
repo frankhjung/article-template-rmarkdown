@@ -5,6 +5,7 @@
 
 # Find all article directories (those with a Makefile)
 ARTICLES := $(patsubst %/Makefile,%,$(wildcard */Makefile))
+ARTICLE_TARGET ?= default
 SHELL    := /bin/bash
 
 .PHONY: help list clean new-article update-links \
@@ -16,6 +17,7 @@ help:
 	@echo "Usage:"
 	@echo "  make list                              - List available articles"
 	@echo "  make <article>                         - Build HTML for a specific article"
+	@echo "  make <article> ARTICLE_TARGET=pdf       - Build PDF for a specific article"
 	@echo "  make <article>-clean                   - Clean a specific article"
 	@echo "  make new-article article_name=<name>   - Create a new article"
 	@echo "  make update-links                      - Re-link shared files for all articles"
@@ -30,7 +32,7 @@ list:
 
 $(ARTICLES):
 	@echo "Building article: $@"
-	$(MAKE) -C $@ default
+	$(MAKE) -C $@ $(ARTICLE_TARGET)
 
 new-article:
 	@if [ -z "$(article_name)" ]; then \
