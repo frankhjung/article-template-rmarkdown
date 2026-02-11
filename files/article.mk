@@ -3,8 +3,7 @@
 .SUFFIXES:
 .SUFFIXES: .Rmd .html .pdf
 
-PROJECT:= base-rate
-
+PROJECT:= $(notdir $(CURDIR))
 R	= /usr/bin/R
 
 default: $(PROJECT).html $(PROJECT).pdf
@@ -12,7 +11,7 @@ default: $(PROJECT).html $(PROJECT).pdf
 .Rmd.html:
 	@mkdir -p public
 	@$(R) --quiet --slave --vanilla --file=make.R --args $< $@
-	@mv $@ public/index.html
+	@mv $@ public/article.html
 
 .Rmd.pdf:
 	@mkdir -p public

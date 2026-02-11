@@ -10,3 +10,5 @@ cache/
 .Rproj.user
 *.trend
 *.zip
+*.html
+public/

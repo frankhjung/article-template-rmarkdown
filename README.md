@@ -1,93 +1,133 @@
-# Article Template R-markdown
+# Rmarkdown Articles
 
-## Overview
+A reusable project for authoring, building, and publishing
+[R Markdown](https://rmarkdown.rstudio.com/) articles to
+[Blogger](https://www.blogger.com/).
 
-This is a template project to render an Rmd project into HTML and PDF for
-publishing to [Blogger](https://www.blogger.com/).
+Each article lives in its own subfolder and shares a common
+build configuration. A single GitHub Actions workflow builds
+any article on demand and publishes the resulting HTML to
+Blogger.
 
-## Source
+## Project Structure
 
-The primary source file: [project_name_here.Rmd](project_name_here.Rmd)
-
-Rename this to a meaningful name based on the article you are writing.
-
-Additional files:
-
-- [Makefile](Makefile) - Makefile for building HTML and PDF
-- [make.R](make.R) - R rendering script
-- [files/article.css](files/article.css) - HTML styling
-- [files/preamble.tex](files/preamble.tex) - LaTeX preamble for PDF
+```text
+rmarkdown/
+├── Dockerfile              # Rmarkdown build image
+├── Makefile                # Root delegating Makefile
+├── files/
+│   ├── article.mk          # Shared article Makefile
+│   ├── make.R              # R rendering script
+│   ├── article.Rmd         # Article template
+│   ├── article.css         # HTML styling
+│   └── preamble.tex        # LaTeX preamble for PDF
+├── images/
+│   └── banner.jpg          # Default banner image
+├── <article_name>/         # One folder per article
+│   ├── Makefile             # Hard link → files/article.mk
+│   ├── make.R              # Hard link → files/make.R
+│   ├── article.Rmd         # Article source
+│   ├── files/
+│   │   ├── article.css     # Hard link → files/article.css
+│   │   └── preamble.tex    # Hard link → files/preamble.tex
+│   └── images/
+│       └── banner.jpg      # Article banner
+└── .github/workflows/
+    └── publish.yml         # Build & publish workflow
+```
 
 ## Prerequisites
 
-- [R](https://www.r-project.org/) (version 4.0 or higher recommended)
-- R packages: `rmarkdown`, `ggplot2`, `knitr`
-- [pandoc](https://pandoc.org/) (usually bundled with RStudio or rmarkdown)
-- A TeX distribution for PDF output:
-  - Linux: TeX Live (`sudo apt install texlive-xetex texlive-fonts-recommended`)
-  - macOS: MacTeX
-  - Windows: MiKTeX or TeX Live
+- [R](https://www.r-project.org/) (version 4.0+)
+- R packages: `rmarkdown`, `knitr`, `ggplot2`, and others
+  (see `Dockerfile` for the full list)
+- [GNU Make](https://www.gnu.org/software/make/)
+- [pandoc](https://pandoc.org/) (bundled with RStudio or
+  install separately)
+- [Docker](https://www.docker.com/) (optional, for
+  containerised builds)
 
 ### Installing R Packages
 
 ```r
-install.packages(c("rmarkdown", "ggplot2", "knitr"))
+install.packages(c(
+  "broom", "dplyr", "forcats", "ggplot2", "knitr",
+  "lubridate", "magrittr", "purrr", "readr", "rlang",
+  "rmarkdown", "scales", "stringr", "tibble", "tidyr"
+))
 ```
 
-### Limitations
-
-To use this template and publish to Blogger, you need:
-
-- Generate the HTML from Rmd (use the `make` command or R directly). While
-  simple Rmd can be rendered to HTML via a pipeline action, often there are more
-  packages required than are available in the default GitHub Actions runner.
-
-- While there is no size limit on publishing HTML to Blogger, it does seem to
-  have issues with very large HTML files (e.g., >5MB). In such cases, consider
-  splitting the article into multiple parts or hosting the HTML elsewhere.
-
-## Building
-
-### Using Make
+## Creating a New Article
 
 ```bash
-# Builds both HTML and PDF
-make
+make new-article article_name=my-article
+```
 
-# Builds HTML only
-make project_name_here.html
+This scaffolds a new article folder with all required files
+and links.
 
-# Builds PDF only
-make project_name_here.pdf
+## Building Locally
 
-# Cleans generated files
+```bash
+# Build a specific article
+make -B base-rate
+
+# List available articles
+make list
+
+# Clean a specific article
+make base-rate-clean
+
+# Clean all articles
 make clean
 ```
 
-### Using R Directly
+Build output is written to
+`<article_name>/public/article.html`.
 
-```r
-# From R console or RStudio
-rmarkdown::render("project_name_here.Rmd", "html_document")
-rmarkdown::render("project_name_here.Rmd", "pdf_document")
+## Docker Build
+
+```bash
+# Build the Docker image
+docker build -t rmarkdown .
+
+# Build an article using the image
+docker run --rm -v "$PWD":/workspace rmarkdown -B base-rate
 ```
 
-## Output Files
+## Publishing via GitHub Actions
 
-- **HTML**: `public/index.html` - web version with custom CSS
-- **PDF**: `public/project_name_here.pdf` - print version with LaTeX formatting
+The
+[publish.yml](.github/workflows/publish.yml)
+workflow is triggered manually via `workflow_dispatch` with
+three inputs:
 
-## Deployment
+| Input | Description |
+| :---- | :---------- |
+| `article_name` | Article subfolder name (e.g. `base-rate`) |
+| `article_title` | Post title as it appears on Blogger |
+| `article_labels` | Comma-separated labels for the post |
 
-The article is automatically published to GitHub Pages via GitHub Actions when
-changes are pushed to the `main` branch. See
-[.github/workflows/pages.yml](.github/workflows/pages.yml) for the deployment
-workflow.
+The workflow validates inputs, builds the article in a
+Docker container, and publishes the resulting HTML to
+Blogger using the
+[blogger](https://github.com/frankhjung/docker-blogger)
+image.
+
+### Required Secrets
+
+| Secret | Description |
+| :----- | :---------- |
+| `BLOGGER_BLOG_ID` | Destination blog identifier |
+| `BLOGGER_CLIENT_ID` | Google OAuth Client ID |
+| `BLOGGER_CLIENT_SECRET` | Google OAuth Client Secret |
+| `BLOGGER_REFRESH_TOKEN` | Long-term API access token |
 
 ## References
 
-See the article itself for data sources and references to NSW Health reports and
-related studies.
+- [R Markdown](https://rmarkdown.rstudio.com/)
+- [Blogger API](https://developers.google.com/blogger)
+- [docker-blogger](https://github.com/frankhjung/docker-blogger)
 
 ## [MIT License](LICENSE)
 

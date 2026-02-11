@@ -1,0 +1,86 @@
+---
+name: publish article
+
+on:
+  workflow_dispatch:
+    inputs:
+      article_name:
+        description: >-
+          Article folder name (e.g., base-rate)
+        required: false
+        type: string
+      article_title:
+        description: "Article title"
+        required: false
+        type: string
+      article_labels:
+        description: >-
+          Comma-separated list of labels
+        required: false
+        type: string
+
+jobs:
+  validate:
+    name: validate inputs
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.check.outputs.build }}
+    steps:
+      - name: check article inputs
+        id: check
+        shell: bash
+        run: |
+          article_name="${{ inputs.article_name }}"
+          article_title="${{ inputs.article_title }}"
+          article_labels="${{ inputs.article_labels }}"
+          # If article_name, article_title, and article_labels are all empty
+          if [[ -z "$article_name" \
+                && -z "$article_title" \
+                && -z "$article_labels" ]]; then
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # If article_name, article_title, or article_labels are empty
+          if [[ -z "$article_name" \
+                || -z "$article_title" \
+                || -z "$article_labels" ]]; then
+            echo "ERROR: article_name, article_title, and article_labels are all required." >&2
+            exit 1
+          fi
+
+          echo "build=true" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: publish ${{ inputs.article_title }}
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.build == 'true'
+
+    steps:
+      - name: shallow checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: build with rmarkdown
+        uses: docker://ghcr.io/frankhjung/rmarkdown:latest
+        with:
+          args: make -B ${{ inputs.article_name }}
+
+      - name: publish to blog
+        if: success()
+        uses: docker://ghcr.io/frankhjung/blogger:v1.2
+        env:
+          SOURCE_FILE: >-
+            ${{ inputs.article_name }}/public/article.html
+        with:
+          args: >-
+            --source-file "${{ env.SOURCE_FILE }}"
+            --title "${{ inputs.article_title }}"
+            --labels "${{ inputs.article_labels }}"
+            --blog-id "${{ secrets.BLOGGER_BLOG_ID }}"
+            --client-id "${{ secrets.BLOGGER_CLIENT_ID }}"
+            --client-secret
+            "${{ secrets.BLOGGER_CLIENT_SECRET }}"
+            --refresh-token
+            "${{ secrets.BLOGGER_REFRESH_TOKEN }}"
