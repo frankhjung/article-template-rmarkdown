@@ -186,7 +186,7 @@ Use the following GitHub Action step to publish the article to Blogger:
 ```yaml
 - name: publish to blog
   if: success()
-  uses: docker://ghcr.io/frankhjung/blogger:v1.2
+  uses: docker://ghcr.io/frankhjung/blogger:v1.3
   with:
     args: >-
       --source-file "article.html"
