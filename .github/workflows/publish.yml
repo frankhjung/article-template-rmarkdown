@@ -63,7 +63,8 @@ jobs:
       - name: build html from rmd
         uses: docker://ghcr.io/frankhjung/gnur:4.5.2
         with:
-          args: make -B ${{ inputs.article_name }}
+          entrypoint: /usr/bin/make
+          args: -B ${{ inputs.article_name }}
 
       - name: archive article
         uses: actions/upload-artifact@v4
