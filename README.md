@@ -13,7 +13,6 @@ Blogger.
 
 ```text
 rmarkdown/
-├── Dockerfile              # Rmarkdown build image
 ├── Makefile                # Root delegating Makefile
 ├── files/
 │   ├── article.mk          # Shared article Makefile
@@ -23,6 +22,8 @@ rmarkdown/
 │   └── preamble.tex        # LaTeX preamble for PDF
 ├── images/
 │   └── banner.jpg          # Default banner image
+├── docs/                   # Project documentation
+├── test/                   # Test article
 ├── <article_name>/         # One folder per article
 │   ├── Makefile             # Hard link → files/article.mk
 │   ├── make.R              # Hard link → files/make.R
@@ -40,7 +41,8 @@ rmarkdown/
 
 - [R](https://www.r-project.org/) (version 4.0+)
 - R packages: `rmarkdown`, `knitr`, `ggplot2`, and others
-  (see `Dockerfile` for the full list)
+  (see `files/make.R` and article `Rmd` files for the
+  full list)
 - [GNU Make](https://www.gnu.org/software/make/)
 - [pandoc](https://pandoc.org/) (bundled with RStudio or
   install separately)
@@ -85,19 +87,30 @@ make clean
 Build output is written to
 `<article_name>/public/article.html`.
 
-## Docker Build
+## Docker Run
+
+This project uses a pre-built GNU R image from GHCR. There
+is no local `Dockerfile`; instead, pull and run the image
+directly.
+
+### Run from GHCR
 
 ```bash
-# Build the Docker image
-docker build -t rmarkdown .
+docker run --rm \
+  -v "$PWD":/workspace \
+  -w /workspace \
+  ghcr.io/frankhjung/gnur:4.5.2 \
+  make -B base-rate
+```
 
-# Build an article using the image
-docker run --rm -v "$PWD":/workspace rmarkdown -B base-rate
+### Run from DockerHub
 
-# Build using GHCR image:
-docker run --rm -v "$PWD":/workspace docker://ghcr.io/frankhjung/gnur:4.5.2 -B base-rate
-
-
+```bash
+docker run --rm \
+  -v "$PWD":/workspace \
+  -w /workspace \
+  frankhjung/gnur:4.5.2 \
+  make -B base-rate
 ```
 
 ## Publishing via GitHub Actions
@@ -113,9 +126,10 @@ three inputs:
 | `article_title` | Post title as it appears on Blogger |
 | `article_labels` | Comma-separated labels for the post |
 
-The workflow validates inputs, builds the article in a
-Docker container, and publishes the resulting HTML to
-Blogger using the
+The workflow validates inputs, builds the article inside a
+Docker container using the
+[gnur](https://ghcr.io/frankhjung/gnur) image, and
+publishes the resulting HTML to Blogger using the
 [blogger](https://github.com/frankhjung/docker-blogger)
 image.
 
