@@ -13,7 +13,7 @@ PDF_OUT := public/$(PROJECT).pdf
 
 default: article.html
 
-article.html: article.Rmd make.R files/article.css
+article.html: article.Rmd
 	@mkdir -p public
 	@R --quiet --slave --vanilla --file=make.R --args article.Rmd $(HTML_OUT)
 
@@ -21,7 +21,7 @@ article.html: article.Rmd make.R files/article.css
 
 pdf: $(PDF_OUT)
 
-$(PDF_OUT): article.Rmd make.R files/preamble.tex
+$(PDF_OUT): article.Rmd
 	@mkdir -p public
 	@R --quiet --slave --vanilla --file=make.R --args article.Rmd $(PDF_OUT)
 

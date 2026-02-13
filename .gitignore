@@ -2,13 +2,14 @@
 cache/
 *.code-workspace
 *.constant
+*.html
 *.log
+public/
 *.random
 .RData
 *.rds
 .Rhistory
+*.Rproj
 .Rproj.user
 *.trend
 *.zip
-*.html
-public/

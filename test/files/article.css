@@ -1,4 +1,7 @@
-/* Simplified article theme (screen-focused) */
+/*
+ * Simplified article theme (screen-focused)
+ * Author: Frank H Jung
+ */
 
 :root {
   --accent: #1771ad;
@@ -34,6 +37,14 @@ p {
   margin: 1em 0;
 }
 
+em, i {
+  color: var(--accent);
+}
+
+.author, .date {
+  color: var(--accent);
+}
+
 a {
   color: var(--accent);
   text-decoration: none;
@@ -48,7 +59,7 @@ blockquote {
   margin: 1em 0;
   padding: 1em;
   padding-left: 1.2em;
-  color: #555;
+  color: var(--accent);
   font-style: italic;
   background-color: var(--background);
   border-radius: 0 4px 4px 0;
@@ -115,7 +126,7 @@ figure {
 figcaption {
   font-size: 0.9em;
   font-style: italic;
-  color: #555;
+  color: var(--accent);
 }
 
 /* Minimal print styles: readable, no colors */
